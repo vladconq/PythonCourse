@@ -1,9 +1,16 @@
+import shutil
+
+
 def merge_files(fname1: str, fname2: str) -> str:
     try:
         with open(fname1, 'r') as f1, open(fname2, 'r') as f2, open('file_result.txt', 'w') as fr:
 
             last_a = True
-            b_var = int(f2.readline())
+            try:
+                b_var = int(f2.readline())
+            except ValueError:
+                shutil.copy('1.txt', 'file_result.txt')
+                return ''
 
             while True:
                 if last_a:
