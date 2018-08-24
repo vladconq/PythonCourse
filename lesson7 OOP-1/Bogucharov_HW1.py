@@ -1,9 +1,3 @@
-import operator
-
-import sys
-import unittest
-
-
 class Calculator:
     _UNARY_MINUS = '~'
     _OPEN_PAR, _CLOSED_PAR = '()'
@@ -22,8 +16,7 @@ class Calculator:
         return ''.join(rpn).replace(Calculator._UNARY_MINUS, '-')
 
     def optimise(self):
-        for operator in self._operators:
-            self._tokens = operator.process(self._tokens)
+        pass
 
     @staticmethod
     def _make_rpn(tokens: list) -> list:
@@ -32,7 +25,7 @@ class Calculator:
 
         prev_token = None
         for token in tokens:
-            if token in Calculator._operators:
+            if token in Calculator._operators:  # token is an operator
                 if prev_token in Calculator._operators:
                     return None
 
@@ -80,47 +73,46 @@ class Calculator:
         return rpn is not None
 
 
-class TestValidation(unittest.TestCase):
+validate_check_list = [
+    ('a+2', True),
+    ('a-(-2)', True),
+    ('a+2-', False),
+    ('a+(2+(3+5)', False),
+    ('a^2', True),
+    ('a^(-2)', True),
+    ('-a-2', True),
+    ('6/0', False),
+    ('a/(b-b)', True),
+]
 
-    def test_validation(self):
-        validate_check_list = [
-            ('a+2', True),
-            ('a-(-2)', True),
-            ('a+2-', False),
-            ('a+(2+(3+5)', False),
-            ('a^2', True),
-            ('a^(-2)', True),
-            ('-a-2', True),
-            ('6/0', False),
-            ('a/(b-b)', True)]
+str_check_list = [
+    ("a", "a"),
+    ("-a", "a-"),
+    ("(a*(b/c)+((d-f)/k))", "abc/*df-k/+"),
+    ("(a)", "a"),
+    ("a*(b+c)", "abc+*"),
+    ("(a*(b/c)+((d-f)/k))*(h*(g-r))", "abc/*df-k/+hgr-**"),
+    ("(x*y)/(j*z)+g", "xy*jz*/g+"),
+    ("a-(b+c)", "abc+-"),
+    ("a/(b+c)", "abc+/"),
+    ("a^(b+c)", "abc+^"),
+]
 
-        for case, exp in validate_check_list:
-            tokens = list(case)
-            calc = Calculator(tokens=tokens).validate()
-            self.assertEqual(exp, calc, f'Error in case for "{case}". Actual "{calc}", expected {exp}')
+for case, exp in validate_check_list:
+    tokens = list(case)
 
+    calc = Calculator(tokens).validate()
+    if calc != exp:
+        print(f'Error in case for "{case}". Actual "{calc}", expected {exp}')
+    else:
+        print(calc)
 
-class TestMagicStr(unittest.TestCase):
+print()
 
-    def test_magic_str(self):
-        str_check_list = [
-            ("a", "a"),
-            ("-a", "a-"),
-            ("(a*(b/c)+((d-f)/k))", "abc/*df-k/+"),
-            ("(a)", "a"),
-            ("a*(b+c)", "abc+*"),
-            ("(a*(b/c)+((d-f)/k))*(h*(g-r))", "abc/*df-k/+hgr-**"),
-            ("(x*y)/(j*z)+g", "xy*jz*/g+"),
-            ("a-(b+c)", "abc+-"),
-            ("a/(b+c)", "abc+/"),
-            ("a^(b+c)", "abc+^"),
-        ]
-
-        for case, exp in str_check_list:
-            tokens = list(case)
-            calc = str(Calculator(tokens))
-            self.assertEqual(exp, calc, f'Error in case for "{case}". Actual "{calc}", expected {exp}')
-
-
-if __name__ == "__main__":
-    unittest.main(buffer=sys.stderr, exit=False)
+for case, exp in str_check_list:
+    tokens = list(case)
+    calc = Calculator(tokens)
+    if str(calc) != exp:
+        print(f'Error in case for "{case}". Actual "{calc}", expected {exp}')
+    else:
+        print(calc)
