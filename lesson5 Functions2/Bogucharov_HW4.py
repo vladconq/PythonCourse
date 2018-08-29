@@ -1,32 +1,38 @@
-def make_cache(number_of_calls):
-    def decorator(fun):
-        set_of_names = set()
+from collections import OrderedDict
 
-        def wrapper(name):
-            nonlocal set_of_names
-            if len(set_of_names) == number_of_calls:
-                print("I again forgot everything.")
-                set_of_names = set()
-            if name not in set_of_names:
-                print("I can only remember three names.")
-                set_of_names.add(name)
-                print("Now they are: " + str(set_of_names) + '\n')
-            else:
-                print("I already remembered " + name + "!" + '\n')
 
-        return wrapper
+def make_cache(maxsize):
+    def decorator(func):
+
+        cache = OrderedDict()
+
+        def decorated(*arg, **kwargs):
+            key = (*arg, None, *kwargs)
+            try:
+                val = cache[key]
+                del cache[key]
+            except KeyError:
+                val = func(*arg, **kwargs)
+
+            cache[key] = val
+            if maxsize and len(cache) > maxsize:
+                cache.popitem(last=False)
+
+            return val
+
+        return decorated
 
     return decorator
 
 
-@make_cache(3)
-def slow_function(name):
-    return name
+@make_cache(2)
+def fib(n):
+    if n == 0:
+        return 0
+    elif n == 1:
+        return 1
+    else:
+        return fib(n - 1) + fib(n - 2)
 
 
-slow_function("Ivan")
-slow_function("Sveta")
-slow_function("Sveta")
-slow_function("Misha")
-slow_function("Tanya")
-slow_function("Stepa")
+print(fib(10))
