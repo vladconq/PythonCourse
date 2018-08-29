@@ -1,22 +1,22 @@
-def mysqrt(num, eps=0.0000001, estimation=1):
-    new_estimation = (num / estimation + estimation) / 2
-    if abs(new_estimation - estimation) <= eps:
-        if eps != 0.0000001:
-            print(round(new_estimation, len(str(eps)) - 2))
+def my_sqrt(n, precision=None):
+    if not precision:
+        numstr = str(n)
+        if 'e' in numstr:
+            index = numstr.find('e') + 2
+            precision = float('0.' + int(numstr[index:]) * '0' + '1')
         else:
-            index = None
-            str_new_est = str(new_estimation)
-            for i in range(len(str_new_est)):
-                if str_new_est[i].isdigit() and str_new_est[i] != '0':
-                    index = i
-                    break
-            print(round(new_estimation, index))
-        return
-    mysqrt(num, eps, new_estimation)
+            precision = 0.00000001
+    lo, hi = 0.0, max(n, 1.0)
+    prev, mid = 0, (lo + hi) / 2.0
+    while abs(mid - prev) > precision:
+        prev, mid = mid, (mid + (n / mid)) / 2.0
+    return '{:.3g}'.format(mid)
 
 
-mysqrt(4)
-mysqrt(5, 0.01)
-mysqrt(4 / 10000)
-mysqrt(4 / 1000000)
-mysqrt(100)
+print(my_sqrt(4))
+print(my_sqrt(5, 0.01))
+print(my_sqrt(4 / 10000))
+print(my_sqrt(4 / 1000000))
+print(my_sqrt(100))
+print(my_sqrt(1000000))
+print(my_sqrt(4e-128))
