@@ -2,6 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 import time
 
+# credentials for email authentication
 EMAIL_OR_PHONE = 'YOUR_EMAIL_OR_PHONE'
 PASSWORD = 'YOUR_PASSWORD'
 
