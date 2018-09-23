@@ -1,42 +1,23 @@
+from copy import deepcopy
+
+
 def partial(func, *fixated_args, **fixated_kwargs):
-    def wrapper(*extra_args, **extra_kwargs):
-        total_args = fixated_args + extra_args
-        total_kwargs = dict(fixated_kwargs)
-        total_kwargs.update(extra_kwargs)
-        args = str([i for i in total_args])
-        kwargs = str({key: value for (key, value) in total_kwargs.items()})
+    def inner(*args, **kwargs):
+        new_args = fixated_args + args
+        new_kwargs = deepcopy(fixated_kwargs)
+        new_kwargs.update(kwargs)
+        return func(*new_args, **new_kwargs)
 
-        wrapper.__doc__ = "A partial implementation of " + func.__name__ + "\n" + \
-                          "with pre-applied arguments being:" + "\n" + \
-                          ("args: " + args if not args == '[]' else "") + \
-                          (" " if not args == '[]' else "") + \
-                          ("kwargs: " + kwargs if not kwargs == '{}' else "")
-        return func(*total_args, **total_kwargs)
-
-    wrapper.__name__ = "partial_" + func.__name__
-    wrapper.__doc__ = func.__doc__
-    return wrapper
+    args_doc = ' '.join(fixated_args)
+    kwargs_doc = ' '.join(['%s=%s' % (k, v) for k, v in fixated_kwargs.items()])
+    name = func.__name__
+    doc = 'A partial implementation of %s\nwith pre-apllied arguments being:\n%s %s'
+    inner.__doc__ = doc % (name, args_doc, kwargs_doc)
+    inner.__name__ = 'partial_%s' % name
+    return inner
 
 
-def some_function(*args, **kwargs):
-    pass
-
-
-print(round(3, 123123))  # 3
-round_test = partial(round)
-print(round_test(3.123123))  # repeats the behavior, also 3
-print(round_test.__doc__)
-print(round_test.__name__)
-round_test2 = partial(round, ndigits=2)
-print(round_test2(3.123123))  # 3.12
-print(round_test2.__doc__)
-print(round_test2.__name__)
-
-print()
-
-tester = partial(some_function, Sky='Blue')
-tester()
-print(tester.__doc__)
-tester(21, Sky='Black', Grass='Green')  # add arg, update kwarg, add kwarg
-print(tester.__doc__)
-print(tester.__name__)
+pp = partial(print, 'Hello', end='!')
+print(pp.__name__)
+print(pp.__doc__)
+pp('world', sep=', ')
